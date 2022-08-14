@@ -1,4 +1,6 @@
-import React, { useContext, createContext, useRef, useCallback } from "react";
+import React, { useContext, createContext, useRef, useEffect } from "react";
+
+import { getRandomHexColor } from "utils/getRandomHexColor";
 
 interface CanvasContextValues {
   canvasRef: React.MutableRefObject<HTMLCanvasElement>;
@@ -9,35 +11,38 @@ interface CanvasContextValues {
 }
 
 const STROKE_LINE_WIDTH = 2;
+const CHANGE_COLOR_KEY = "r";
 
 export const CanvasContextProvider = (props: React.PropsWithChildren) => {
   const canvasRef = useRef({} as HTMLCanvasElement);
   const ctxRef = useRef({} as CanvasRenderingContext2D);
   const isDrawingRef = useRef(false);
 
-  const handleSetCanvasRef = useCallback((canvas: HTMLCanvasElement) => {
-    canvasRef.current = canvas;
-    ctxRef.current = canvasRef.current.getContext("2d")!;
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
-  const handleStartDrawing: CanvasContextValues["onStartDrawing"] = useCallback(
-    (e) => {
-      isDrawingRef.current = true;
-    },
-    []
-  );
+  function handleSetCanvasRef(canvas: HTMLCanvasElement) {
+    canvasRef.current = canvas;
+    ctxRef.current = canvasRef.current.getContext("2d")!;
+  }
 
-  const handleStopDrawing: CanvasContextValues["onStopDrawing"] = useCallback(
-    (e) => {
-      isDrawingRef.current = false;
+  function handleStartDrawing() {
+    isDrawingRef.current = true;
+  }
 
-      ctxRef.current.stroke();
-      ctxRef.current.beginPath();
-    },
-    []
-  );
+  function handleStopDrawing() {
+    isDrawingRef.current = false;
 
-  const handleDrawing: CanvasContextValues["onDrawing"] = useCallback((e) => {
+    ctxRef.current.stroke();
+    ctxRef.current.beginPath();
+  }
+
+  function handleDrawing(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!isDrawingRef.current) {
       return;
     }
@@ -46,7 +51,15 @@ export const CanvasContextProvider = (props: React.PropsWithChildren) => {
 
     ctxRef.current.lineTo(e.clientX, e.clientY);
     ctxRef.current.stroke();
-  }, []);
+  }
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key !== CHANGE_COLOR_KEY) {
+      return;
+    }
+
+    ctxRef.current.strokeStyle = getRandomHexColor();
+  }
 
   return (
     <CanvasContext.Provider
