@@ -10,6 +10,8 @@
     "@types/node": "^16.11.48",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
+    "lodash.throttle": "^4.1.1",
+    "pubnub": "^7.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -39,5 +41,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/lodash.throttle": "^4.1.7",
+    "@types/pubnub": "^7.2.0"
   }
 }

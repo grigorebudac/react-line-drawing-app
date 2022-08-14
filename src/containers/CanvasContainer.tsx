@@ -9,7 +9,7 @@ const CanvasContainer = () => {
     useCanvasContext();
 
   useEffect(() => {
-    if (canvasRef != null) {
+    if (canvasRef.current != null) {
       onSetCanvasRef(canvasRef.current);
     }
   }, [onSetCanvasRef]);
