@@ -1,6 +1,6 @@
 import React, { useContext, createContext, useRef, useEffect } from "react";
-import * as Canvas from "types/Canvas.types";
 
+import * as Canvas from "types/Canvas.types";
 import { getRandomHexColor } from "utils/color.utils";
 import { usePubNubContext } from "./PubNubContext";
 

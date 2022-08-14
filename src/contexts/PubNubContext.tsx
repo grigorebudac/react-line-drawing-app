@@ -1,14 +1,18 @@
 import React, { useContext, createContext, useCallback } from "react";
 import PubNub from "pubnub";
 
+import { uuid } from "utils/common.utils";
+
+const myUuid = uuid();
+
 const pubnub = new PubNub({
   publishKey: process.env.REACT_APP_PUBNUB_PUBLISH_KEY!,
   subscribeKey: process.env.REACT_APP_PUBNUB_SUBSCRIBE_KEY!,
-  uuid: process.env.REACT_APP_PUBNUB_UUID!,
+  uuid: myUuid,
 });
 
 interface PubNubContextValues {
-  onPublishMessage: (message: any) => any;
+  onPublishMessage: (message: any) => Promise<void>;
   onSubscribeToChannel: (callback: (message: any) => void) => void;
   onUnsubscribeFromChannel: () => void;
 }
@@ -24,7 +28,7 @@ export const PubNubContextProvider = (
     async (message: any) => {
       const publishPayload = {
         channel: props.channelId,
-        message,
+        message: JSON.stringify(message),
       };
 
       await pubnub.publish(publishPayload);
@@ -38,7 +42,13 @@ export const PubNubContextProvider = (
     });
 
     pubnub.addListener({
-      message: (event) => callback(event.message),
+      message: (event) => {
+        if (event.publisher === myUuid) {
+          return;
+        }
+
+        return callback(JSON.parse(event.message));
+      },
     });
   }
 
